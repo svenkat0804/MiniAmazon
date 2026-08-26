@@ -1,1 +1,1 @@
-# MiniAmazon
+# MiniAmazon App
