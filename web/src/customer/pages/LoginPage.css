@@ -1,0 +1,65 @@
+.login-error {
+  width: 100%;
+
+  margin-bottom: 18px;
+
+  padding: 11px 13px;
+
+  border: 1px solid #fecaca;
+
+  border-radius: 8px;
+
+  background: #fef2f2;
+
+  color: #b91c1c;
+
+  font-size: 13px;
+
+  line-height: 1.4;
+}
+
+.signup-section {
+  width: 100%;
+
+  margin-top: 22px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 5px;
+
+  color: #6b7280;
+
+  font-size: 13px;
+
+  text-align: center;
+}
+
+.signup-link {
+  width: auto !important;
+
+  min-width: auto !important;
+
+  padding: 0 !important;
+
+  margin: 0 !important;
+
+  border: 0 !important;
+
+  background: transparent !important;
+
+  color: #111827;
+
+  font-size: 13px;
+
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+.signup-link:hover {
+  text-decoration: underline;
+}
