@@ -3,16 +3,16 @@
   "version": "1.0.0",
   "type": "module",
   "main": "index.js",
+  "description": "DentalKart backend API - dental ecommerce platform with Express, TypeScript, and PostgreSQL",
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "seed:admin": "tsx src/seedAdmin.ts",
     "build": "tsc",
     "start": "node dist/server.js"
   },
-  "keywords": [],
+  "keywords": ["dental", "ecommerce", "api", "express", "typescript", "postgresql"],
   "author": "",
   "license": "ISC",
-  "description": "",
   "dependencies": {
     "bcrypt": "^6.0.0",
     "cors": "^2.8.6",

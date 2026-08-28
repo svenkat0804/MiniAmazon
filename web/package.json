@@ -3,6 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "description": "DentalKart customer and admin frontend - dental ecommerce store built with React, TypeScript, and Vite",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
