@@ -1,4 +1,5 @@
 import { useCart } from "../context/CartContext"
+import "./CartPage.css"
 
 type CartPageProps = {
   onContinueShopping: () => void

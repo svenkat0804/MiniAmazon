@@ -35,8 +35,7 @@ async function request(
 
   } else {
 
-    const text =
-      await response.text()
+    await response.text()
 
     throw new Error(
       `Server returned invalid response (${response.status})`

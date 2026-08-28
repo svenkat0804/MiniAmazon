@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom"
+
 type HeaderProps = {
   searchText: string
   onSearchChange: (value: string) => void
@@ -21,13 +23,13 @@ function Header({
 
         <div className="header-left">
 
-          <button
-            type="button"
+          <Link
+            to="/"
             className="header-logo"
             onClick={() => onSearchChange("")}
           >
             Mini Amazon
-          </button>
+          </Link>
 
         </div>
 
