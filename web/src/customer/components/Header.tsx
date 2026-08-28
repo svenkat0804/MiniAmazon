@@ -5,96 +5,187 @@ type HeaderProps = {
   onSearchChange: (value: string) => void
   onCartClick: () => void
   onLoginClick: () => void
+  cartCount?: number
 }
 
 function Header({
   searchText,
   onSearchChange,
   onCartClick,
-  onLoginClick
+  onLoginClick,
+  cartCount = 0
 }: HeaderProps) {
 
   return (
     <header className="site-header">
 
-      <div className="header-container">
+      {/* TOP UTILITY BAR */}
 
-        {/* LEFT - LOGO */}
+      <div className="header-utility">
 
-        <div className="header-left">
+        <div className="header-container utility-container">
 
-          <Link
-            to="/"
-            className="header-logo"
-            onClick={() => onSearchChange("")}
-          >
-            Mini Amazon
-          </Link>
+          <div className="utility-left">
 
-        </div>
+            <span className="support-badge">
+              <span className="support-icon">🎧</span>
+              <span className="support-text">
+                <span className="support-label">Need Help?</span>
+                <a className="support-number" href="tel:+917289999456">+91 728-9999-456</a>
+              </span>
+            </span>
+
+          </div>
 
 
-        {/* CENTER - SEARCH */}
+          <div className="utility-right">
 
-        <div className="header-center">
+            <a className="utility-link" href="#">Track Order</a>
 
-          <div className="header-search">
+            <span className="utility-divider" aria-hidden="true" />
 
-            <input
-              type="text"
-              value={searchText}
-              onChange={(event) =>
-                onSearchChange(event.target.value)
-              }
-              placeholder="Search products..."
-            />
+            <a className="utility-link" href="#">Support</a>
 
-            {searchText.length > 0 && (
+            <span className="utility-divider" aria-hidden="true" />
 
-              <button
-                type="button"
-                className="search-clear"
-                onClick={() => onSearchChange("")}
-              >
-                ×
-              </button>
+            <a className="utility-link" href="#">Login / Signup</a>
 
-            )}
+            <span className="utility-divider" aria-hidden="true" />
+
+            <a className="utility-link" href="#">Wishlist</a>
 
           </div>
 
         </div>
 
+      </div>
 
-        {/* RIGHT - ACTIONS */}
 
-        <div className="header-right">
+      {/* MAIN HEADER */}
 
-          <button
-            type="button"
-            className="header-login"
-            onClick={onLoginClick}
-          >
-            Login
-          </button>
+      <div className="header-main">
 
-          <button
-            type="button"
-            className="header-cart"
-            onClick={onCartClick}
-          >
-            <span className="cart-icon">
-              🛒
-            </span>
+        <div className="header-container main-container">
 
-            <span>
-              Cart
-            </span>
-          </button>
+          <div className="header-left">
+
+            <Link to="/" className="header-logo" onClick={() => onSearchChange("")}>
+              <span className="logo-icon">🦷</span>
+              <span className="logo-text">DentalKart</span>
+            </Link>
+
+            <div className="delivery-badge">
+
+              <span className="delivery-icon">📍</span>
+
+              <div className="delivery-text">
+
+                <span className="delivery-label">Deliver to</span>
+
+                <button type="button" className="pincode-button">
+                  <span>Enter Pincode</span>
+                  <span className="pincode-arrow">›</span>
+                </button>
+
+              </div>
+
+            </div>
+
+          </div>
+
+
+          <div className="header-center">
+
+            <div className={`header-search${searchText.length > 0 ? " has-value" : ""}`}>
+
+              <span className="search-icon" aria-hidden="true">
+                🔍
+              </span>
+
+              <input
+                type="text"
+                value={searchText}
+                onChange={(event) =>
+                  onSearchChange(event.target.value)
+                }
+                placeholder="Search 20,000+ dental products..."
+              />
+
+              {searchText.length > 0 && (
+                <button
+                  type="button"
+                  className="search-clear"
+                  onClick={() => onSearchChange("")}
+                  aria-label="Clear search"
+                >
+                  ×
+                </button>
+              )}
+
+            </div>
+
+          </div>
+
+
+          <div className="header-right">
+
+            <button
+              type="button"
+              className="header-login"
+              onClick={onLoginClick}
+            >
+              <span className="header-icon">👤</span>
+              <span className="header-label">Account</span>
+            </button>
+
+            <button
+              type="button"
+              className="header-cart"
+              onClick={onCartClick}
+            >
+              <span className="cart-icon-wrap">
+                🛒
+                {cartCount > 0 && (
+                  <span className="cart-badge">{cartCount}</span>
+                )}
+              </span>
+
+              <span className="cart-text">
+                Cart
+              </span>
+            </button>
+
+          </div>
 
         </div>
 
       </div>
+
+
+      {/* NAVIGATION */}
+
+      <nav className="header-nav">
+
+        <div className="header-container nav-container">
+
+          <div className="nav-links">
+
+            <Link to="/" className="nav-link">Category</Link>
+            <Link to="/" className="nav-link">About Us</Link>
+            <Link to="/" className="nav-link">Brand</Link>
+            <Link to="/" className="nav-link">Freebies</Link>
+            <Link to="/" className="nav-link">Best Sellers</Link>
+            <Link to="/" className="nav-link">Offers</Link>
+            <Link to="/" className="nav-link">New Arrivals</Link>
+            <Link to="/" className="nav-link">Membership</Link>
+            <Link to="/" className="nav-link">Events</Link>
+            <Link to="/" className="nav-link">New Clinic Setup</Link>
+
+          </div>
+
+        </div>
+
+      </nav>
 
     </header>
   )

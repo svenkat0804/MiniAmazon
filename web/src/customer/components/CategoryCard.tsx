@@ -3,6 +3,7 @@ type CategoryCardProps = {
     id: number
     name: string
     icon: string
+    image: string
   }
   onClick: () => void
 }
@@ -10,7 +11,7 @@ type CategoryCardProps = {
 function CategoryCard({ category, onClick }: CategoryCardProps) {
   return (
     <button type="button" className="category-card" onClick={onClick}>
-      <span className="category-icon">{category.icon}</span>
+      <img src={category.image} alt={category.name} />
       <span className="category-name">{category.name}</span>
     </button>
   )

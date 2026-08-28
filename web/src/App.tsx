@@ -27,6 +27,7 @@ function CustomerApp() {
 
   const navigate = useNavigate()
   const location = useLocation()
+  const { cart } = useCart()
 
   const [searchText, setSearchText] = useState("")
   const [toastProduct, setToastProduct] = useState<string | null>(null)
@@ -47,6 +48,12 @@ function CustomerApp() {
           onSearchChange={setSearchText}
           onCartClick={() => navigate("/cart")}
           onLoginClick={() => navigate("/login")}
+          cartCount={
+            cart.reduce(
+              (sum, item) => sum + item.quantity,
+              0
+            )
+          }
         />
 
       )}
