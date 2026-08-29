@@ -1,5 +1,7 @@
 import { useState } from "react"
 
+import { adminLogin } from "../api/adminApi"
+
 type AdminLoginPageProps = {
   onLoginSuccess: () => void
 }
@@ -25,35 +27,16 @@ function AdminLoginPage({
 
     try {
 
-      const response = await fetch(
-        "http://localhost:5001/api/admin/login",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            email: email.trim(),
-            password
-          })
-        }
+      const data = await adminLogin(
+        email.trim(),
+        password
       )
 
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(
-          data.message || "Login failed"
-        )
-      }
-
-      // Save JWT token
       localStorage.setItem(
         "mini-amazon-admin-token",
         data.token
       )
 
-      // Save admin information
       localStorage.setItem(
         "mini-amazon-admin",
         JSON.stringify(data.admin)
@@ -84,7 +67,7 @@ function AdminLoginPage({
         </div>
 
         <h1 style={styles.title}>
-          MiniAmazon
+          DentalKart
         </h1>
 
         <p style={styles.subtitle}>
@@ -96,6 +79,11 @@ function AdminLoginPage({
             {error}
           </div>
         )}
+
+        <div style={styles.hint}>
+          <strong>Demo credentials:</strong><br />
+          admin@dentalkart.com / admin123
+        </div>
 
         <div style={styles.formGroup}>
 
@@ -179,6 +167,16 @@ const styles = {
     textAlign: "center" as const,
     color: "#666",
     marginBottom: "30px"
+  },
+
+  hint: {
+    padding: "12px",
+    marginBottom: "20px",
+    backgroundColor: "#e8f5e9",
+    color: "#2e7d32",
+    borderRadius: "6px",
+    fontSize: "13px",
+    lineHeight: "1.5"
   },
 
   formGroup: {

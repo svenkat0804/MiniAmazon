@@ -1,9 +1,14 @@
 export type Product = {
   id: number
   name: string
+  description: string
   price: number
-  image: string
-  category: string
+  stock: number
+  is_active: boolean
+  created_at: string
+  category_id: number
+  category_name: string
+  image?: string
 }
 
 export type Category = {
@@ -32,85 +37,145 @@ export const products: Product[] = [
   {
     id: 1,
     name: "Premium Dental Chair",
+    description: "High quality dental chair with excellent performance and value.",
     price: 249999,
-    image: "https://images.unsplash.com/photo-1770321119162-05c18fbcfdb9?fm=jpg&q=80&w=800&auto=format&fit=crop",
-    category: "Implant Prosthetics"
+    stock: 10,
+    is_active: true,
+    created_at: "2024-01-01T00:00:00Z",
+    category_id: 1,
+    category_name: "Implant Prosthetics",
+    image: "https://images.unsplash.com/photo-1770321119162-05c18fbcfdb9?fm=jpg&q=80&w=800&auto=format&fit=crop"
   },
   {
     id: 2,
     name: "High Speed Airotor Handpiece",
+    description: "High quality product with excellent performance and value.",
     price: 18999,
-    image: "https://images.pexels.com/photos/6502661/pexels-photo-6502661.jpeg?auto=compress&w=800",
-    category: "Airotors"
+    stock: 25,
+    is_active: true,
+    created_at: "2024-01-02T00:00:00Z",
+    category_id: 2,
+    category_name: "Airotors",
+    image: "https://images.pexels.com/photos/6502661/pexels-photo-6502661.jpeg?auto=compress&w=800"
   },
   {
     id: 3,
     name: "Universal Composite Kit",
+    description: "High quality product with excellent performance and value.",
     price: 4599,
-    image: "https://images.pexels.com/photos/3845728/pexels-photo-3845728.jpeg?auto=compress&w=800",
-    category: "Composite"
+    stock: 50,
+    is_active: true,
+    created_at: "2024-01-03T00:00:00Z",
+    category_id: 3,
+    category_name: "Composite",
+    image: "https://images.pexels.com/photos/3845728/pexels-photo-3845728.jpeg?auto=compress&w=800"
   },
   {
     id: 4,
     name: "Wireless Intraoral Scanner",
+    description: "High quality product with excellent performance and value.",
     price: 129999,
-    image: "https://images.pexels.com/photos/3845729/pexels-photo-3845729.jpeg?auto=compress&w=800",
-    category: "Intra Oral Camera"
+    stock: 5,
+    is_active: true,
+    created_at: "2024-01-04T00:00:00Z",
+    category_id: 4,
+    category_name: "Intra Oral Camera",
+    image: "https://images.pexels.com/photos/3845729/pexels-photo-3845729.jpeg?auto=compress&w=800"
   },
   {
     id: 5,
     name: "Endomotor with Apex Locator",
+    description: "High quality product with excellent performance and value.",
     price: 34999,
-    image: "https://images.pexels.com/photos/6502661/pexels-photo-6502661.jpeg?auto=compress&w=800",
-    category: "Endomotors"
+    stock: 15,
+    is_active: true,
+    created_at: "2024-01-05T00:00:00Z",
+    category_id: 5,
+    category_name: "Endomotors",
+    image: "https://images.pexels.com/photos/6502661/pexels-photo-6502661.jpeg?auto=compress&w=800"
   },
   {
     id: 6,
     name: "Digital Autoclave Sterilizer",
+    description: "High quality product with excellent performance and value.",
     price: 58999,
-    image: "https://images.pexels.com/photos/3845728/pexels-photo-3845728.jpeg?auto=compress&w=800",
-    category: "Autoclave"
+    stock: 8,
+    is_active: true,
+    created_at: "2024-01-06T00:00:00Z",
+    category_id: 6,
+    category_name: "Autoclave",
+    image: "https://images.pexels.com/photos/3845728/pexels-photo-3845728.jpeg?auto=compress&w=800"
   },
   {
     id: 7,
     name: "NiTi Rotary File Set",
+    description: "High quality product with excellent performance and value.",
     price: 3299,
-    image: "https://images.pexels.com/photos/6502336/pexels-photo-6502336.jpeg?auto=compress&w=800",
-    category: "Rotary Files"
+    stock: 100,
+    is_active: true,
+    created_at: "2024-01-07T00:00:00Z",
+    category_id: 7,
+    category_name: "Rotary Files",
+    image: "https://images.pexels.com/photos/6502336/pexels-photo-6502336.jpeg?auto=compress&w=800"
   },
   {
     id: 8,
     name: "Dental Glass Ionomer Cement",
+    description: "High quality product with excellent performance and value.",
     price: 1299,
-    image: "https://images.pexels.com/photos/3845729/pexels-photo-3845729.jpeg?auto=compress&w=800",
-    category: "Cements"
+    stock: 200,
+    is_active: true,
+    created_at: "2024-01-08T00:00:00Z",
+    category_id: 8,
+    category_name: "Cements",
+    image: "https://images.pexels.com/photos/3845729/pexels-photo-3845729.jpeg?auto=compress&w=800"
   },
   {
     id: 9,
     name: "Silicone Impression Material",
+    description: "High quality product with excellent performance and value.",
     price: 2499,
-    image: "https://images.pexels.com/photos/7788360/pexels-photo-7788360.jpeg?auto=compress&w=800",
-    category: "Impression Materials"
+    stock: 75,
+    is_active: true,
+    created_at: "2024-01-09T00:00:00Z",
+    category_id: 9,
+    category_name: "Impression Materials",
+    image: "https://images.pexels.com/photos/7788360/pexels-photo-7788360.jpeg?auto=compress&w=800"
   },
   {
     id: 10,
     name: "Metal Brackets Kit",
+    description: "High quality product with excellent performance and value.",
     price: 1899,
-    image: "https://images.pexels.com/photos/6529122/pexels-photo-6529122.jpeg?auto=compress&w=800",
-    category: "Brackets"
+    stock: 60,
+    is_active: true,
+    created_at: "2024-01-10T00:00:00Z",
+    category_id: 10,
+    category_name: "Brackets",
+    image: "https://images.pexels.com/photos/6529122/pexels-photo-6529122.jpeg?auto=compress&w=800"
   },
   {
     id: 11,
     name: "Sterile Sutures Pack",
+    description: "High quality product with excellent performance and value.",
     price: 899,
-    image: "https://images.pexels.com/photos/6627456/pexels-photo-6627456.jpeg?auto=compress&w=800",
-    category: "Sutures & Needles"
+    stock: 150,
+    is_active: true,
+    created_at: "2024-01-11T00:00:00Z",
+    category_id: 11,
+    category_name: "Sutures & Needles",
+    image: "https://images.pexels.com/photos/6627456/pexels-photo-6627456.jpeg?auto=compress&w=800"
   },
   {
     id: 12,
     name: "Dental Unit Spare Part",
+    description: "High quality product with excellent performance and value.",
     price: 3499,
-    image: "https://images.pexels.com/photos/6502336/pexels-photo-6502336.jpeg?auto=compress&w=800",
-    category: "Spare Parts"
+    stock: 30,
+    is_active: true,
+    created_at: "2024-01-12T00:00:00Z",
+    category_id: 12,
+    category_name: "Spare Parts",
+    image: "https://images.pexels.com/photos/6502336/pexels-photo-6502336.jpeg?auto=compress&w=800"
   }
 ]

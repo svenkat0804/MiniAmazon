@@ -1,6 +1,7 @@
-import { products } from "../data/products"
-
+import { useState, useEffect } from "react"
 import { useCart } from "../context/CartContext"
+import { customerGet } from "../api/customerApi"
+import type { Product } from "../types"
 
 type ProductDetailPageProps = {
   productId: number
@@ -14,44 +15,74 @@ function ProductDetailPage({
   onAdded
 }: ProductDetailPageProps) {
 
+  const [product, setProduct] = useState<Product | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const { addToCart } = useCart()
 
+  useEffect(() => {
+    async function fetchProduct() {
+      try {
+        setLoading(true)
+        setError(null)
+        const data = await customerGet(`/admin/products/${productId}`) as { product: { id: number; name: string; description?: string; price: number; stock: number; is_active: boolean; created_at: string; category_id: number; category_name?: string } }
+        const apiProduct = data.product
+        if (apiProduct) {
+          setProduct({
+            id: apiProduct.id,
+            name: apiProduct.name,
+            description: apiProduct.description || "",
+            price: Number(apiProduct.price) || 0,
+            stock: Number(apiProduct.stock) || 0,
+            is_active: apiProduct.is_active ?? true,
+            created_at: apiProduct.created_at || new Date().toISOString(),
+            category_id: Number(apiProduct.category_id) || 0,
+            category_name: apiProduct.category_name || "",
+            image: `https://via.placeholder.com/800x600?text=${encodeURIComponent(apiProduct.name)}`
+          })
+        }
+      } catch {
+        setError("Failed to load product details")
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchProduct()
+  }, [productId])
 
-  const product = products.find(
-    (item) => item.id === productId
-  )
+  const handleAddToCart = () => {
+    if (product) {
+      addToCart(product)
+      onAdded(product.name)
+    }
+  }
 
-
-  if (!product) {
-
+  if (loading) {
     return (
-
       <div className="product-detail-page">
+        <div className="loading-products">
+          <div className="loading-spinner" />
+          <p>Loading product...</p>
+        </div>
+      </div>
+    )
+  }
 
+  if (error || !product) {
+    return (
+      <div className="product-detail-page">
         <h1>
-          Product not found
+          {error || "Product not found"}
         </h1>
-
         <button
           type="button"
           onClick={onBack}
         >
           Back
         </button>
-
       </div>
-
     )
   }
-
-
-  const handleAddToCart = () => {
-
-    addToCart(product)
-
-    onAdded(product.name)
-  }
-
 
   return (
 
@@ -96,8 +127,7 @@ function ProductDetailPage({
             </div>
 
             <p className="product-description">
-              High quality product with excellent
-              performance and value.
+              {product.description}
             </p>
 
 
@@ -116,7 +146,6 @@ function ProductDetailPage({
       </div>
 
     </div>
-
   )
 }
 

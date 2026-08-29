@@ -5,6 +5,9 @@ import "dotenv/config"
 import adminRoutes from "./routes/admin.routes.js"
 import productRoutes from "./routes/product.routes.js"
 import categoryRoutes from "./routes/category.routes.js"
+import customerRoutes from "./routes/customer.routes.js"
+import orderRoutes from "./routes/order.routes.js"
+import complaintRoutes from "./routes/complaint.routes.js"
 
 const app = express()
 
@@ -45,7 +48,26 @@ app.use(
   categoryRoutes
 )
 
-// ================================
+app.use(
+  "/api/admin/customers",
+  customerRoutes
+)
+
+app.use(
+  "/api/admin/orders",
+  orderRoutes
+)
+
+app.use(
+  "/api/orders",
+  orderRoutes
+)
+
+app.use(
+  "/api/admin/complaints",
+  complaintRoutes
+)
+
 // 404
 // ================================
 

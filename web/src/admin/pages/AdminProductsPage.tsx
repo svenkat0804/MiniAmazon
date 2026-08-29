@@ -138,7 +138,7 @@ function AdminProductsPage() {
       setError("")
 
       const data =
-        await adminGet("/admin/products")
+        await adminGet("/admin/products") as { products: Product[] }
 
       setProducts(
         data.products || []
@@ -174,7 +174,7 @@ function AdminProductsPage() {
     try {
 
       const data =
-        await adminGet("/categories")
+        await adminGet("/categories") as { categories: { id: number; name: string }[] }
 
       setCategories(
         data.categories || []

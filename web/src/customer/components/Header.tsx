@@ -1,3 +1,5 @@
+import { useState, useRef, useEffect } from "react"
+import { createPortal } from "react-dom"
 import { Link } from "react-router-dom"
 
 type HeaderProps = {
@@ -5,6 +7,7 @@ type HeaderProps = {
   onSearchChange: (value: string) => void
   onCartClick: () => void
   onLoginClick: () => void
+  onLogoutClick: () => void
   cartCount?: number
 }
 
@@ -13,95 +16,84 @@ function Header({
   onSearchChange,
   onCartClick,
   onLoginClick,
+  onLogoutClick,
   cartCount = 0
 }: HeaderProps) {
+  const [menuOpen, setMenuOpen] = useState(false)
+  const [coords, setCoords] = useState<{ top: number; left: number } | null>(null)
+  const triggerRef = useRef<HTMLButtonElement>(null)
+  const isLoggedIn = typeof window !== "undefined" && !!localStorage.getItem("mini-amazon-user")
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      const target = event.target as Node
+      const dropdown = document.querySelector(".header-menu-dropdown")
+      const trigger = triggerRef.current
+      if (dropdown && !dropdown.contains(target) && trigger && !trigger.contains(target)) {
+        setMenuOpen(false)
+        setCoords(null)
+      }
+    }
+    function handleEscape(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setMenuOpen(false)
+        setCoords(null)
+      }
+    }
+    if (menuOpen) {
+      document.addEventListener("mousedown", handleClickOutside)
+      document.addEventListener("keydown", handleEscape)
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside)
+      document.removeEventListener("keydown", handleEscape)
+    }
+  }, [menuOpen])
+
+  const openMenu = () => {
+    if (triggerRef.current) {
+      const rect = triggerRef.current.getBoundingClientRect()
+      setCoords({
+        top: rect.bottom + 8,
+        left: rect.left
+      })
+    }
+    setMenuOpen(true)
+  }
+
+  const closeMenu = () => {
+    setMenuOpen(false)
+    setCoords(null)
+  }
 
   return (
     <header className="site-header">
 
-      {/* TOP UTILITY BAR */}
-
-      <div className="header-utility">
-
-        <div className="header-container utility-container">
-
-          <div className="utility-left">
-
-            <span className="support-badge">
-              <span className="support-icon">🎧</span>
-              <span className="support-text">
-                <span className="support-label">Need Help?</span>
-                <a className="support-number" href="tel:+917289999456">+91 728-9999-456</a>
-              </span>
-            </span>
-
-          </div>
-
-
-          <div className="utility-right">
-
-            <a className="utility-link" href="#">Track Order</a>
-
-            <span className="utility-divider" aria-hidden="true" />
-
-            <a className="utility-link" href="#">Support</a>
-
-            <span className="utility-divider" aria-hidden="true" />
-
-            <a className="utility-link" href="#">Login / Signup</a>
-
-            <span className="utility-divider" aria-hidden="true" />
-
-            <a className="utility-link" href="#">Wishlist</a>
-
-          </div>
-
-        </div>
-
-      </div>
-
-
-      {/* MAIN HEADER */}
-
-      <div className="header-main">
-
-        <div className="header-container main-container">
-
-          <div className="header-left">
-
-            <Link to="/" className="header-logo" onClick={() => onSearchChange("")}>
+      {/* NAVIGATION */}
+      <nav className="header-nav">
+        <div className="nav-container">
+          <div className="nav-left">
+            <Link to="/" className="nav-logo" onClick={() => onSearchChange("")}>
               <span className="logo-icon">🦷</span>
               <span className="logo-text">DentalKart</span>
             </Link>
-
-            <div className="delivery-badge">
-
-              <span className="delivery-icon">📍</span>
-
-              <div className="delivery-text">
-
-                <span className="delivery-label">Deliver to</span>
-
-                <button type="button" className="pincode-button">
-                  <span>Enter Pincode</span>
-                  <span className="pincode-arrow">›</span>
-                </button>
-
-              </div>
-
+            <div className="header-menu-wrapper">
+              <button
+                ref={triggerRef}
+                type="button"
+                className="header-menu-trigger"
+                onClick={openMenu}
+              >
+                <span className="menu-icon">☰</span>
+              </button>
             </div>
-
           </div>
 
-
-          <div className="header-center">
-
+          <div className="nav-center">
             <div className={`header-search${searchText.length > 0 ? " has-value" : ""}`}>
-
               <span className="search-icon" aria-hidden="true">
                 🔍
               </span>
-
               <input
                 type="text"
                 value={searchText}
@@ -110,7 +102,6 @@ function Header({
                 }
                 placeholder="Search 20,000+ dental products..."
               />
-
               {searchText.length > 0 && (
                 <button
                   type="button"
@@ -121,21 +112,17 @@ function Header({
                   ×
                 </button>
               )}
-
             </div>
-
           </div>
 
-
-          <div className="header-right">
-
+          <div className="nav-right">
             <button
               type="button"
-              className="header-login"
-              onClick={onLoginClick}
+              className="header-auth"
+              onClick={isLoggedIn ? onLogoutClick : onLoginClick}
             >
-              <span className="header-icon">👤</span>
-              <span className="header-label">Account</span>
+              <span className="auth-icon">{isLoggedIn ? "🚪" : "👤"}</span>
+              <span className="auth-label">{isLoggedIn ? "Logout" : "Login"}</span>
             </button>
 
             <button
@@ -143,49 +130,27 @@ function Header({
               className="header-cart"
               onClick={onCartClick}
             >
-              <span className="cart-icon-wrap">
-                🛒
-                {cartCount > 0 && (
-                  <span className="cart-badge">{cartCount}</span>
-                )}
-              </span>
-
-              <span className="cart-text">
-                Cart
-              </span>
+              <span className="cart-icon-wrap">🛒</span>
+              {cartCount > 0 && (
+                <span className="cart-badge">{cartCount}</span>
+              )}
+              <span className="cart-text">Cart</span>
             </button>
-
           </div>
-
         </div>
-
-      </div>
-
-
-      {/* NAVIGATION */}
-
-      <nav className="header-nav">
-
-        <div className="header-container nav-container">
-
-          <div className="nav-links">
-
-            <Link to="/" className="nav-link">Category</Link>
-            <Link to="/" className="nav-link">About Us</Link>
-            <Link to="/" className="nav-link">Brand</Link>
-            <Link to="/" className="nav-link">Freebies</Link>
-            <Link to="/" className="nav-link">Best Sellers</Link>
-            <Link to="/" className="nav-link">Offers</Link>
-            <Link to="/" className="nav-link">New Arrivals</Link>
-            <Link to="/" className="nav-link">Membership</Link>
-            <Link to="/" className="nav-link">Events</Link>
-            <Link to="/" className="nav-link">New Clinic Setup</Link>
-
-          </div>
-
-        </div>
-
       </nav>
+
+      {menuOpen && coords && createPortal(
+        <div className="header-menu-dropdown" style={{ top: coords.top, left: coords.left, position: "fixed" }}>
+          {isLoggedIn && (
+            <Link to="/orders" className="header-menu-item" onClick={closeMenu}>📋 View Orders</Link>
+          )}
+          <Link to="/about" className="header-menu-item" onClick={closeMenu}>ℹ️ About Us</Link>
+          <Link to="/contact" className="header-menu-item" onClick={closeMenu}>📞 Contact Us</Link>
+          <Link to="/support" className="header-menu-item" onClick={closeMenu}>💬 Support</Link>
+        </div>,
+        document.body
+      )}
 
     </header>
   )

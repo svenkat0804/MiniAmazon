@@ -2,6 +2,22 @@ const API_BASE_URL =
   "http://localhost:5001/api"
 
 
+function getAuthHeaders(): Record<string, string> {
+  const token =
+    localStorage.getItem(
+      "mini-amazon-admin-token"
+    )
+
+  if (token) {
+    return {
+      Authorization: `Bearer ${token}`
+    }
+  }
+
+  return {}
+}
+
+
 async function request(
   path: string,
   options: RequestInit = {}
@@ -14,6 +30,7 @@ async function request(
 
       headers: {
         "Content-Type": "application/json",
+        ...getAuthHeaders(),
         ...(options.headers || {})
       }
     }
@@ -24,7 +41,7 @@ async function request(
     response.headers.get("content-type") || ""
 
 
-  let data: any
+  let data: unknown
 
 
   if (
@@ -45,8 +62,10 @@ async function request(
 
   if (!response.ok) {
 
+    const errorData = data as { message?: string }
+
     throw new Error(
-      data?.message ||
+      errorData.message ||
       `Request failed (${response.status})`
     )
   }
@@ -56,7 +75,6 @@ async function request(
 }
 
 
-// GET
 export async function adminGet(
   path: string
 ) {
@@ -67,7 +85,6 @@ export async function adminGet(
 }
 
 
-// POST
 export async function adminPost(
   path: string,
   body: unknown
@@ -80,7 +97,6 @@ export async function adminPost(
 }
 
 
-// PUT
 export async function adminPut(
   path: string,
   body: unknown
@@ -93,7 +109,6 @@ export async function adminPut(
 }
 
 
-// DELETE
 export async function adminDelete(
   path: string
 ) {
@@ -101,4 +116,65 @@ export async function adminDelete(
   return request(path, {
     method: "DELETE"
   })
+}
+
+
+export async function adminLogin(
+  email: string,
+  password: string
+) {
+
+  const response = await fetch(
+    `${API_BASE_URL}/admin/login`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        email,
+        password
+      })
+    }
+  )
+
+  const data = await response.json()
+
+  if (!response.ok) {
+    throw new Error(
+      data.message || "Login failed"
+    )
+  }
+
+  return data
+}
+
+
+export async function getAdminStats() {
+
+  return request("/admin/orders/stats")
+}
+
+
+export async function getAdminCustomers() {
+
+  return request("/admin/customers")
+}
+
+
+export async function getAdminProducts() {
+
+  return request("/admin/products")
+}
+
+
+export async function getAdminOrders() {
+
+  return request("/admin/orders")
+}
+
+
+export async function getAdminComplaints() {
+
+  return request("/admin/complaints")
 }

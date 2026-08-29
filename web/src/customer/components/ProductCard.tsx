@@ -1,6 +1,6 @@
 import { useCart } from "../context/CartContext"
 
-import type { Product } from "../data/products"
+import type { Product } from "../types"
 
 
 type ProductCardProps = {
@@ -27,6 +27,11 @@ function ProductCard({
   }
 
 
+  const imageSrc =
+    product.image ||
+    `https://via.placeholder.com/400x400?text=${encodeURIComponent(product.name)}`
+
+
   return (
 
     <article className="product-card">
@@ -38,7 +43,7 @@ function ProductCard({
       >
 
         <img
-          src={product.image}
+          src={imageSrc}
           alt={product.name}
           className="product-image"
         />
@@ -51,6 +56,12 @@ function ProductCard({
         <h2>
           {product.name}
         </h2>
+
+        {product.description && (
+          <p className="product-description-short">
+            {product.description}
+          </p>
+        )}
 
         <p className="product-price">
           ₹{product.price.toLocaleString("en-IN")}

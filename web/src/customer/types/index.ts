@@ -1,8 +1,14 @@
 export type Product = {
   id: number
   name: string
+  description: string
   price: number
-  image: string
+  stock: number
+  is_active: boolean
+  created_at: string
+  category_id: number
+  category_name: string
+  image?: string
 }
 
 export type CartItem = Product & {
@@ -26,13 +32,39 @@ export type PaymentMethod =
   | "CREDIT_CARD"
   | "DEBIT_CARD"
 
-export type Order = {
+export type OrderStatus =
+  | "PLACED"
+  | "CONFIRMED"
+  | "SHIPPED"
+  | "OUT_FOR_DELIVERY"
+  | "DELIVERED"
+
+export type TrackingStep =
+  | "PLACED"
+  | "CONFIRMED"
+  | "SHIPPED"
+  | "OUT_FOR_DELIVERY"
+  | "DELIVERED"
+
+export interface TrackingInfo {
+  currentStatus: OrderStatus
+  steps: {
+    status: TrackingStep
+    label: string
+    description: string
+    completed: boolean
+    active: boolean
+  }[]
+}
+
+export interface Order {
   id: string
   items: CartItem[]
   address: Address
   paymentMethod: PaymentMethod
   paymentStatus: "SUCCESS" | "FAILED"
-  orderStatus: "PLACED"
+  orderStatus: OrderStatus
   total: number
   createdAt: string
+  tracking?: TrackingInfo
 }

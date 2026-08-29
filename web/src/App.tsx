@@ -14,9 +14,12 @@ import LoginPage from "./customer/pages/LoginPage"
 import ProductDetailPage from "./customer/pages/ProductDetailPage"
 import SignupPage from "./customer/pages/SignupPage"
 import OrdersPage from "./customer/pages/OrdersPage"
+import OrderDetailPage from "./customer/pages/OrderDetailPage"
 
 import AdminLoginPage from "./admin/pages/AdminLoginPage"
 import AdminDashboardPage from "./admin/pages/AdminDashboardPage"
+
+import SupportPage from "./customer/pages/SupportPage"
 
 import { saveOrder } from "./customer/utils/orders"
 
@@ -48,6 +51,10 @@ function CustomerApp() {
           onSearchChange={setSearchText}
           onCartClick={() => navigate("/cart")}
           onLoginClick={() => navigate("/login")}
+          onLogoutClick={() => {
+            localStorage.removeItem("mini-amazon-user")
+            navigate("/login")
+          }}
           cartCount={
             cart.reduce(
               (sum, item) => sum + item.quantity,
@@ -136,8 +143,18 @@ function CustomerApp() {
           />
 
           <Route
+            path="/orders/:orderId"
+            element={<OrderDetailPage />}
+          />
+
+          <Route
             path="/order-success/:orderId"
             element={<OrderSuccessPageWrapper />}
+          />
+
+          <Route
+            path="/support"
+            element={<SupportPage />}
           />
 
         </Routes>
@@ -367,13 +384,35 @@ function OrderSuccessPageWrapper() {
   return (
     <main className="page-content">
       <div className="success-card">
-        <div className="success-icon">✓</div>
-        <h1>Order Placed Successfully</h1>
-        <p>Thank you for your order.</p>
-        <p>Order ID: <strong>{orderId}</strong></p>
+        <div className="success-icon">
+          ✓
+        </div>
+        <h1>
+          Order Placed Successfully
+        </h1>
+        <p>
+          Thank you for your order.
+        </p>
+        <p>
+          Order ID:
+          {" "}
+          <strong>
+            {orderId}
+          </strong>
+        </p>
         <div className="success-actions">
-          <Link to="/orders" className="primary-button">View Orders</Link>
-          <Link to="/" className="secondary-button">Continue Shopping</Link>
+          <Link
+            to="/orders"
+            className="primary-button"
+          >
+            View Orders
+          </Link>
+          <Link
+            to="/"
+            className="secondary-button"
+          >
+            Continue Shopping
+          </Link>
         </div>
       </div>
     </main>

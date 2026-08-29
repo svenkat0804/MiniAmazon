@@ -87,7 +87,7 @@ function AdminCategoriesPage() {
       setError("")
 
       const data =
-        await adminGet("/categories")
+        await adminGet("/categories") as { categories: { id: number; name: string }[] }
 
       setCategories(
         data.categories || []
