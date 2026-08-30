@@ -24,7 +24,8 @@ export async function loginAdmin(
         email,
         password_hash,
         role,
-        is_active
+        is_active,
+        image_url
       FROM admins
       WHERE email = $1
       `,
@@ -80,7 +81,8 @@ export async function loginAdmin(
         id: admin.id,
         name: admin.name,
         email: admin.email,
-        role: admin.role
+        role: admin.role,
+        image_url: admin.image_url || null
       }
     })
 
@@ -94,7 +96,60 @@ export async function loginAdmin(
   }
 }
 
-  
+
+export async function updateAdminProfile(
+  req: Request,
+  res: Response
+) {
+  try {
+    const adminId = (req as any).admin?.adminId
+
+    if (!adminId) {
+      return res.status(401).json({
+        message: "Unauthorized"
+      })
+    }
+
+    const { name, image_url } = req.body
+
+    const result = await pool.query(
+      `
+      UPDATE admins
+      SET
+        name = COALESCE($1, name),
+        image_url = COALESCE($2, image_url),
+        updated_at = NOW()
+      WHERE id = $3
+      RETURNING id, name, email, role, image_url
+      `,
+      [
+        name,
+        image_url,
+        adminId
+      ]
+    )
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        message: "Admin not found"
+      })
+    }
+
+    return res.json({
+      message: "Profile updated successfully",
+      admin: result.rows[0]
+    })
+
+  } catch (error) {
+    console.error("Update admin profile error:", error)
+
+    return res.status(500).json({
+      message: "Failed to update profile"
+    })
+  }
+}
+
+
 import type { AuthenticatedRequest } from "../middleware/adminAuth.js"
 
 export function getAdminProfile(

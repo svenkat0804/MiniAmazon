@@ -15,6 +15,7 @@ export async function getProducts(
         p.price,
         p.stock,
         p.is_active,
+        p.image_url,
         p.created_at,
         c.id AS category_id,
         c.name AS category_name
@@ -61,6 +62,7 @@ export async function getProductById(
         p.price,
         p.stock,
         p.is_active,
+        p.image_url,
         p.created_at,
         c.id AS category_id,
         c.name AS category_name
@@ -103,7 +105,8 @@ export async function createProduct(
       name,
       description,
       price,
-      stock
+      stock,
+      image_url
     } = req.body
 
     if (
@@ -127,25 +130,35 @@ export async function createProduct(
       })
     }
 
+    const slug =
+      name
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "")
+
     const result = await pool.query(
       `
       INSERT INTO products
       (
         category_id,
         name,
+        slug,
         description,
         price,
-        stock
+        stock,
+        image_url
       )
-      VALUES ($1, $2, $3, $4, $5)
+      VALUES ($1, $2, $3, $4, $5, $6, $7)
       RETURNING *
       `,
       [
         category_id,
         name,
+        slug,
         description || null,
         price,
-        stock ?? 0
+        stock ?? 0,
+        image_url || null
       ]
     )
 
@@ -184,7 +197,8 @@ export async function updateProduct(
       description,
       price,
       stock,
-      is_active
+      is_active,
+      image_url
     } = req.body
 
     const result = await pool.query(
@@ -196,8 +210,9 @@ export async function updateProduct(
         description = $3,
         price = $4,
         stock = $5,
-        is_active = $6
-      WHERE id = $7
+        is_active = $6,
+        image_url = $7
+      WHERE id = $8
       RETURNING *
       `,
       [
@@ -207,6 +222,7 @@ export async function updateProduct(
         price,
         stock ?? 0,
         is_active ?? true,
+        image_url || null,
         id
       ]
     )

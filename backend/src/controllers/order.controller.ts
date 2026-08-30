@@ -159,6 +159,26 @@ export async function updateOrderStatus(
       [id, status, note || null]
     )
 
+    const order = result.rows[0]
+
+    if (order.customer_email) {
+      await pool.query(
+        `
+        INSERT INTO notifications
+        (role, reference_id, type, title, message, data)
+        VALUES ($1, $2, $3, $4, $5, $6)
+        `,
+        [
+          "customer",
+          order.customer_id || 0,
+          "order",
+          `Order ${status}`,
+          `Your order #${order.id} status has been updated to ${status}.`,
+          JSON.stringify({ order_id: order.id, status })
+        ]
+      )
+    }
+
     return res.json({
       message: "Order status updated",
       order: result.rows[0]
@@ -298,6 +318,40 @@ export async function createOrder(
       VALUES ($1, $2, $3)
       `,
       [order.id, order.order_status, "Order placed successfully"]
+    )
+
+    if (order.customer_email) {
+      await pool.query(
+        `
+        INSERT INTO notifications
+        (role, reference_id, type, title, message, data)
+        VALUES ($1, $2, $3, $4, $5, $6)
+        `,
+        [
+          "customer",
+          order.customer_id || 0,
+          "order",
+          "Order Placed Successfully",
+          `Your order #${order.id} has been placed successfully. Total: ₹${order.total}`,
+          JSON.stringify({ order_id: order.id, total: order.total })
+        ]
+      )
+    }
+
+    await pool.query(
+      `
+      INSERT INTO notifications
+      (role, reference_id, type, title, message, data)
+      VALUES ($1, $2, $3, $4, $5, $6)
+      `,
+      [
+        "admin",
+        1,
+        "order",
+        "New Order Received",
+        `New order #${order.id} from ${order.customer_name}. Total: ₹${order.total}`,
+        JSON.stringify({ order_id: order.id, customer_name: order.customer_name, total: order.total })
+      ]
     )
 
     return res.status(201).json({

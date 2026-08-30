@@ -178,3 +178,32 @@ export async function getAdminComplaints() {
 
   return request("/admin/complaints")
 }
+
+
+export async function getSiteSettings() {
+
+  return request("/site/settings")
+}
+
+
+export async function updateSiteSetting(
+  key: string,
+  value: string
+) {
+
+  return request("/site/settings", {
+    method: "PUT",
+    body: JSON.stringify({ key, value })
+  })
+}
+
+
+export async function updateAdminProfile(
+  data: { name?: string; image_url?: string | null }
+) {
+
+  return request("/admin/profile", {
+    method: "PUT",
+    body: JSON.stringify(data)
+  })
+}

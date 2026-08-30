@@ -18,11 +18,10 @@ function Footer() {
 
             <div className="footer-social">
 
-              <a href="#" aria-label="Facebook">FB</a>
-              <a href="#" aria-label="Instagram">IG</a>
-              <a href="#" aria-label="Twitter">X</a>
-              <a href="#" aria-label="YouTube">YT</a>
-              <a href="#" aria-label="LinkedIn">LN</a>
+              <a href="https://www.instagram.com/svenkatesh0804/" target="_blank" rel="noopener noreferrer" aria-label="Instagram" title="Instagram">📷</a>
+              <a href="https://www.facebook.com/Svenkat.0804" target="_blank" rel="noopener noreferrer" aria-label="Facebook" title="Facebook">👤</a>
+              <a href="https://www.linkedin.com/in/svenkatesh0804" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" title="LinkedIn">💼</a>
+              <a href="https://wa.me/919710700734" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp" title="WhatsApp">💬</a>
 
             </div>
 
@@ -31,37 +30,23 @@ function Footer() {
 
           <div className="footer-column">
 
-            <h3>About</h3>
+            <h3>Quick Links</h3>
 
-            <button type="button">Contact Us</button>
-            <button type="button">About Us</button>
-            <button type="button">Blogs</button>
-            <button type="button">Careers</button>
-            <button type="button">Investor Relations</button>
-
-          </div>
-
-
-          <div className="footer-column">
-
-            <h3>Help</h3>
-
-            <button type="button">Orders</button>
-            <button type="button">Refunds</button>
-            <button type="button">Payments</button>
-            <button type="button">Rewards</button>
+            <a href="/about">About Us</a>
+            <a href="/contact">Contact Us</a>
+            <a href="/support">Support</a>
+            <a href="/orders">Orders</a>
 
           </div>
 
 
           <div className="footer-column">
 
-            <h3>Policy</h3>
+            <h3>Policies</h3>
 
-            <button type="button">Return Policy</button>
-            <button type="button">Terms & Conditions</button>
-            <button type="button">Privacy</button>
-            <button type="button">Sitemap</button>
+            <a href="/terms">Terms & Conditions</a>
+            <a href="/privacy">Privacy Policy</a>
+            <a href="/refund">Refund Policy</a>
 
           </div>
 
@@ -71,16 +56,16 @@ function Footer() {
             <h3>Contact Us</h3>
 
             <p>
-              +91-728-9999-456
+              +91-9710700734
             </p>
 
             <p>
-              support@dentalkart.com
+              svenkatesh0804@gmail.com
             </p>
 
             <p>
-              Mon-Sat 9:00 AM - 7:00 PM<br />
-              Sun 10:00 AM - 7:00 PM
+              5/395, Dr.Ambethkart Street, Canalapuram Road, Perungudi,<br />
+              Chennai - 600041
             </p>
 
           </div>

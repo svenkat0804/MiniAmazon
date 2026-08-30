@@ -73,6 +73,7 @@ async function setupDatabase() {
         password_hash VARCHAR(255) NOT NULL,
         role VARCHAR(50) DEFAULT 'admin',
         is_active BOOLEAN DEFAULT true,
+        image_url TEXT,
         created_at TIMESTAMP DEFAULT NOW(),
         updated_at TIMESTAMP DEFAULT NOW()
       )
@@ -99,6 +100,7 @@ async function setupDatabase() {
         price DECIMAL(10,2) NOT NULL,
         stock INTEGER DEFAULT 0,
         is_active BOOLEAN DEFAULT true,
+        image_url TEXT,
         created_at TIMESTAMP DEFAULT NOW(),
         updated_at TIMESTAMP DEFAULT NOW()
       )
@@ -138,6 +140,7 @@ async function setupDatabase() {
         city VARCHAR(100),
         state VARCHAR(100),
         pincode VARCHAR(10),
+        image_url TEXT,
         created_at TIMESTAMP DEFAULT NOW()
       )
     `)
@@ -265,6 +268,31 @@ async function setupDatabase() {
         subject VARCHAR(255) NOT NULL,
         message TEXT NOT NULL,
         status VARCHAR(50) DEFAULT 'open',
+        created_at TIMESTAMP DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW()
+      )
+    `)
+
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS site_settings (
+        id SERIAL PRIMARY KEY,
+        key VARCHAR(100) UNIQUE NOT NULL,
+        value TEXT,
+        created_at TIMESTAMP DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW()
+      )
+    `)
+
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS notifications (
+        id SERIAL PRIMARY KEY,
+        role VARCHAR(50) NOT NULL DEFAULT 'customer',
+        reference_id INTEGER NOT NULL,
+        type VARCHAR(100) NOT NULL,
+        title VARCHAR(255) NOT NULL,
+        message TEXT NOT NULL,
+        data JSONB,
+        is_read BOOLEAN DEFAULT false,
         created_at TIMESTAMP DEFAULT NOW(),
         updated_at TIMESTAMP DEFAULT NOW()
       )

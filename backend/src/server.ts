@@ -8,6 +8,8 @@ import categoryRoutes from "./routes/category.routes.js"
 import customerRoutes from "./routes/customer.routes.js"
 import orderRoutes from "./routes/order.routes.js"
 import complaintRoutes from "./routes/complaint.routes.js"
+import siteRoutes from "./routes/site.routes.js"
+import notificationRoutes from "./routes/notification.routes.js"
 
 const app = express()
 
@@ -66,6 +68,15 @@ app.use(
 app.use(
   "/api/admin/complaints",
   complaintRoutes
+)
+
+app.use("/api/site", siteRoutes)
+
+app.use("/api/notifications", notificationRoutes)
+
+app.use(
+  "/api/admin/notifications",
+  notificationRoutes
 )
 
 // 404

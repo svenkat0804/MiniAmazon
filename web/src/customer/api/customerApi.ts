@@ -100,3 +100,38 @@ export async function customerDelete(
     method: "DELETE"
   })
 }
+
+
+export async function getSiteSettings() {
+
+  return request("/site/settings")
+}
+
+
+export async function getNotifications(params: Record<string, string | number>) {
+  const query = new URLSearchParams()
+  Object.entries(params).forEach(([key, value]) => {
+    query.append(key, String(value))
+  })
+  return request(`/notifications?${query.toString()}`)
+}
+
+
+export async function getUnreadNotificationCount(role: string, referenceId: number) {
+  return request(`/notifications/unread-count?role=${encodeURIComponent(role)}&reference_id=${referenceId}`)
+}
+
+
+export async function markNotificationRead(id: number) {
+  return request(`/notifications/${id}/read`, {
+    method: "PUT"
+  })
+}
+
+
+export async function markAllNotificationsRead(role: string, referenceId: number) {
+  return request("/notifications/mark-all-read", {
+    method: "PUT",
+    body: JSON.stringify({ role, reference_id: referenceId })
+  })
+}

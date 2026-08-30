@@ -25,7 +25,7 @@ function ProductDetailPage({
       try {
         setLoading(true)
         setError(null)
-        const data = await customerGet(`/admin/products/${productId}`) as { product: { id: number; name: string; description?: string; price: number; stock: number; is_active: boolean; created_at: string; category_id: number; category_name?: string } }
+        const data = await customerGet(`/admin/products/${productId}`) as { product: { id: number; name: string; description?: string; price: number; stock: number; is_active: boolean; created_at: string; category_id: number; category_name?: string; image_url?: string | null } }
         const apiProduct = data.product
         if (apiProduct) {
           setProduct({
@@ -38,7 +38,7 @@ function ProductDetailPage({
             created_at: apiProduct.created_at || new Date().toISOString(),
             category_id: Number(apiProduct.category_id) || 0,
             category_name: apiProduct.category_name || "",
-            image: `https://via.placeholder.com/800x600?text=${encodeURIComponent(apiProduct.name)}`
+            image: apiProduct.image_url || `https://via.placeholder.com/800x600?text=${encodeURIComponent(apiProduct.name)}`
           })
         }
       } catch {

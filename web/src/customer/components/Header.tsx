@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react"
 import { createPortal } from "react-dom"
 import { Link } from "react-router-dom"
+import { getSiteSettings, getUnreadNotificationCount } from "../api/customerApi"
 
 type HeaderProps = {
   searchText: string
@@ -23,6 +24,56 @@ function Header({
   const [coords, setCoords] = useState<{ top: number; left: number } | null>(null)
   const triggerRef = useRef<HTMLButtonElement>(null)
   const isLoggedIn = typeof window !== "undefined" && !!localStorage.getItem("mini-amazon-user")
+  const [profileImage, setProfileImage] = useState("")
+  const [logoUrl, setLogoUrl] = useState("")
+  const [unreadCount, setUnreadCount] = useState(0)
+
+  useEffect(() => {
+    async function loadLogo() {
+      try {
+        const data = await getSiteSettings() as { settings: Record<string, string> }
+        if (data.settings?.logo_url) {
+          setLogoUrl(data.settings.logo_url)
+        }
+      } catch (err) {
+        console.error("Load logo error:", err)
+      }
+    }
+    loadLogo()
+  }, [])
+
+  useEffect(() => {
+    async function loadUnreadCount() {
+      try {
+        const userData = localStorage.getItem("mini-amazon-user")
+        if (userData) {
+          const user = JSON.parse(userData)
+          const data = await getUnreadNotificationCount("customer", user.id) as { count: number }
+          setUnreadCount(data.count)
+        }
+      } catch (err) {
+        console.error("Load unread count error:", err)
+      }
+    }
+    loadUnreadCount()
+  }, [])
+
+  useEffect(() => {
+    function loadProfile() {
+      try {
+        const saved = localStorage.getItem("mini-amazon-profile")
+        if (saved) {
+          const profile = JSON.parse(saved)
+          if (profile.image) {
+            setProfileImage(profile.image)
+          }
+        }
+      } catch (err) {
+        console.error("Load profile error:", err)
+      }
+    }
+    loadProfile()
+  }, [])
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -73,10 +124,20 @@ function Header({
       <nav className="header-nav">
         <div className="nav-container">
           <div className="nav-left">
-            <Link to="/" className="nav-logo" onClick={() => onSearchChange("")}>
-              <span className="logo-icon">🦷</span>
-              <span className="logo-text">DentalKart</span>
-            </Link>
+          <Link to="/" className="nav-logo" onClick={() => onSearchChange("")}>
+            {logoUrl ? (
+              <img
+                src={logoUrl}
+                alt="DentalKart"
+                className="logo-image"
+              />
+            ) : (
+              <>
+                <span className="logo-icon">🦷</span>
+                <span className="logo-text">DentalKart</span>
+              </>
+            )}
+          </Link>
             <div className="header-menu-wrapper">
               <button
                 ref={triggerRef}
@@ -116,14 +177,45 @@ function Header({
           </div>
 
           <div className="nav-right">
-            <button
-              type="button"
-              className="header-auth"
-              onClick={isLoggedIn ? onLogoutClick : onLoginClick}
-            >
-              <span className="auth-icon">{isLoggedIn ? "🚪" : "👤"}</span>
-              <span className="auth-label">{isLoggedIn ? "Logout" : "Login"}</span>
-            </button>
+            {isLoggedIn && (
+              <Link to="/notifications" className="header-notification">
+                <span className="notification-icon">🔔</span>
+                {unreadCount > 0 && (
+                  <span className="notification-badge">{unreadCount}</span>
+                )}
+              </Link>
+            )}
+            {isLoggedIn ? (
+              <div className="profile-container">
+                <Link to="/profile" className="header-profile">
+                  {profileImage ? (
+                    <img
+                      src={profileImage}
+                      alt="Profile"
+                      className="profile-image"
+                    />
+                  ) : (
+                    <span className="profile-placeholder">👤</span>
+                  )}
+                </Link>
+                <button
+                  type="button"
+                  className="header-auth"
+                  onClick={onLogoutClick}
+                >
+                  <span className="auth-label">Logout</span>
+                </button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                className="header-auth"
+                onClick={onLoginClick}
+              >
+                <span className="auth-icon">👤</span>
+                <span className="auth-label">Login</span>
+              </button>
+            )}
 
             <button
               type="button"
@@ -143,11 +235,17 @@ function Header({
       {menuOpen && coords && createPortal(
         <div className="header-menu-dropdown" style={{ top: coords.top, left: coords.left, position: "fixed" }}>
           {isLoggedIn && (
+            <Link to="/profile" className="header-menu-item" onClick={closeMenu}>👤 Profile</Link>
+          )}
+          {isLoggedIn && (
             <Link to="/orders" className="header-menu-item" onClick={closeMenu}>📋 View Orders</Link>
           )}
           <Link to="/about" className="header-menu-item" onClick={closeMenu}>ℹ️ About Us</Link>
           <Link to="/contact" className="header-menu-item" onClick={closeMenu}>📞 Contact Us</Link>
           <Link to="/support" className="header-menu-item" onClick={closeMenu}>💬 Support</Link>
+          <Link to="/terms" className="header-menu-item" onClick={closeMenu}>📄 Terms</Link>
+          <Link to="/privacy" className="header-menu-item" onClick={closeMenu}>🔒 Privacy</Link>
+          <Link to="/refund" className="header-menu-item" onClick={closeMenu}>💰 Refund Policy</Link>
         </div>,
         document.body
       )}

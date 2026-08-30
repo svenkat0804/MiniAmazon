@@ -15,6 +15,14 @@ import ProductDetailPage from "./customer/pages/ProductDetailPage"
 import SignupPage from "./customer/pages/SignupPage"
 import OrdersPage from "./customer/pages/OrdersPage"
 import OrderDetailPage from "./customer/pages/OrderDetailPage"
+import ProfilePage from "./customer/pages/ProfilePage"
+import AddressesPage from "./customer/pages/AddressesPage"
+import NotificationsPage from "./customer/pages/NotificationsPage"
+import AboutPage from "./customer/pages/AboutPage"
+import ContactPage from "./customer/pages/ContactPage"
+import TermsPage from "./customer/pages/TermsPage"
+import PrivacyPage from "./customer/pages/PrivacyPage"
+import RefundPage from "./customer/pages/RefundPage"
 
 import AdminLoginPage from "./admin/pages/AdminLoginPage"
 import AdminDashboardPage from "./admin/pages/AdminDashboardPage"
@@ -155,6 +163,46 @@ function CustomerApp() {
           <Route
             path="/support"
             element={<SupportPage />}
+          />
+
+          <Route
+            path="/profile"
+            element={<ProfilePage />}
+          />
+
+          <Route
+            path="/notifications"
+            element={<NotificationsPage />}
+          />
+
+          <Route
+            path="/addresses"
+            element={<AddressesPage />}
+          />
+
+          <Route
+            path="/about"
+            element={<AboutPage />}
+          />
+
+          <Route
+            path="/contact"
+            element={<ContactPage />}
+          />
+
+          <Route
+            path="/terms"
+            element={<TermsPage />}
+          />
+
+          <Route
+            path="/privacy"
+            element={<PrivacyPage />}
+          />
+
+          <Route
+            path="/refund"
+            element={<RefundPage />}
           />
 
         </Routes>

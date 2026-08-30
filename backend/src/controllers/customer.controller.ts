@@ -16,6 +16,7 @@ export async function getCustomers(
         city,
         state,
         pincode,
+        image_url,
         created_at
       FROM customers
       ORDER BY id DESC
@@ -58,6 +59,7 @@ export async function getCustomerById(
         city,
         state,
         pincode,
+        image_url,
         created_at
       FROM customers
       WHERE id = $1
@@ -96,7 +98,8 @@ export async function createCustomer(
       address,
       city,
       state,
-      pincode
+      pincode,
+      image_url
     } = req.body
 
     if (!name || !email) {
@@ -108,8 +111,8 @@ export async function createCustomer(
     const result = await pool.query(
       `
       INSERT INTO customers
-      (name, email, phone, address, city, state, pincode)
-      VALUES ($1, $2, $3, $4, $5, $6, $7)
+      (name, email, phone, address, city, state, pincode, image_url)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
       RETURNING *
       `,
       [
@@ -119,7 +122,8 @@ export async function createCustomer(
         address || null,
         city || null,
         state || null,
-        pincode || null
+        pincode || null,
+        image_url || null
       ]
     )
 
@@ -163,7 +167,8 @@ export async function updateCustomer(
       address,
       city,
       state,
-      pincode
+      pincode,
+      image_url
     } = req.body
 
     const result = await pool.query(
@@ -176,8 +181,9 @@ export async function updateCustomer(
         address = $4,
         city = $5,
         state = $6,
-        pincode = $7
-      WHERE id = $8
+        pincode = $7,
+        image_url = $8
+      WHERE id = $9
       RETURNING *
       `,
       [
@@ -188,6 +194,7 @@ export async function updateCustomer(
         city || null,
         state || null,
         pincode || null,
+        image_url || null,
         id
       ]
     )

@@ -74,6 +74,15 @@ function AdminCategoriesPage() {
   const [deletingId, setDeletingId] =
     useState<number | null>(null)
 
+  const [searchQuery, setSearchQuery] =
+    useState("")
+
+  const [currentPage, setCurrentPage] =
+    useState(1)
+
+  const [itemsPerPage] =
+    useState(10)
+
 
   // =====================================================
   // GET CATEGORIES
@@ -381,6 +390,27 @@ function AdminCategoriesPage() {
   // UI
   // =====================================================
 
+  const filteredCategories = (() => {
+    const query = searchQuery.trim().toLowerCase()
+    if (!query) return categories
+    return categories.filter(
+      (category) =>
+        String(category.id).includes(query) ||
+        category.name.toLowerCase().includes(query)
+    )
+  })()
+
+  const paginatedCategories = (() => {
+    const start = (currentPage - 1) * itemsPerPage
+    return filteredCategories.slice(start, start + itemsPerPage)
+  })()
+
+  const totalPages = Math.ceil(filteredCategories.length / itemsPerPage)
+
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [searchQuery])
+
   return (
 
     <div style={styles.page}>
@@ -653,11 +683,46 @@ function AdminCategoriesPage() {
           </div>
 
 
+          <input
+            type="text"
+            placeholder="Search by ID or name..."
+            value={searchQuery}
+            onChange={(event) =>
+              setSearchQuery(event.target.value)
+            }
+            style={styles.searchInput}
+          />
+
+
           <span style={styles.count}>
-            {categories.length}
+            {filteredCategories.length}
           </span>
 
         </div>
+
+        {totalPages > 1 && (
+          <div style={styles.pagination}>
+            <button
+              type="button"
+              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+              style={styles.paginationButton}
+            >
+              Previous
+            </button>
+            <span style={styles.paginationInfo}>
+              Page {currentPage} of {totalPages}
+            </span>
+            <button
+              type="button"
+              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages}
+              style={styles.paginationButton}
+            >
+              Next
+            </button>
+          </div>
+        )}
 
 
         {/* LOADING */}
@@ -672,7 +737,7 @@ function AdminCategoriesPage() {
 
           </div>
 
-        ) : categories.length === 0 ? (
+        ) : paginatedCategories.length === 0 ? (
 
 
           /* EMPTY */
@@ -749,7 +814,7 @@ function AdminCategoriesPage() {
 
               <tbody>
 
-                {categories.map(
+                {paginatedCategories.map(
                   (category) => (
 
                     <tr
@@ -989,6 +1054,42 @@ const styles = {
     borderBottom: "1px solid #eee"
   },
 
+
+  searchInput: {
+    padding: "8px 12px",
+    border: "1px solid #ddd",
+    borderRadius: "6px",
+    fontSize: "14px",
+    minWidth: "220px"
+  },
+
+
+  pagination: {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    gap: "16px",
+    padding: "20px"
+  },
+
+  paginationButton: {
+    padding: "8px 16px",
+    border: "1px solid #ddd",
+    borderRadius: "6px",
+    backgroundColor: "#fff",
+    cursor: "pointer",
+    fontSize: "14px"
+  },
+
+  paginationButtonDisabled: {
+    opacity: 0.5,
+    cursor: "not-allowed"
+  },
+
+  paginationInfo: {
+    fontSize: "14px",
+    color: "#666"
+  },
 
   listTitle: {
     margin: 0,

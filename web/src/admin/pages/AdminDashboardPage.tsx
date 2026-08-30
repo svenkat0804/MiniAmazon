@@ -10,7 +10,10 @@ import {
   getAdminCustomers,
   getAdminProducts,
   getAdminOrders,
-  getAdminComplaints
+  getAdminComplaints,
+  updateAdminProfile,
+  getSiteSettings,
+  updateSiteSetting
 } from "../api/adminApi"
 
 type AdminDashboardPageProps = {
@@ -19,6 +22,7 @@ type AdminDashboardPageProps = {
 
 type MenuItem =
   | "dashboard"
+  | "notifications"
   | "categories"
   | "products"
   | "inventory"
@@ -54,6 +58,159 @@ function AdminDashboardPage({
   const admin = adminData
     ? JSON.parse(adminData)
     : null
+
+  const [adminImage, setAdminImage] = useState(
+    admin?.image_url || ""
+  )
+
+  const [savingProfile, setSavingProfile] =
+    useState(false)
+
+  const [logoUrl, setLogoUrl] = useState("")
+  const [savingLogo, setSavingLogo] = useState(false)
+
+  type AdminNotification = {
+  id: number
+  role: string
+  reference_id: number
+  type: string
+  title: string
+  message: string
+  data: unknown
+  is_read: boolean
+  created_at: string
+}
+
+const [adminNotifications, setAdminNotifications] = useState<AdminNotification[]>([])
+  const [adminNotificationsPage, setAdminNotificationsPage] = useState(1)
+  const [adminNotificationsTotalPages, setAdminNotificationsTotalPages] = useState(1)
+  const [adminNotificationsLoading, setAdminNotificationsLoading] = useState(false)
+
+  const handleProfileImageChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = event.target.files?.[0]
+    if (!file) return
+
+    const allowedTypes = ["image/png", "image/jpeg", "image/jpg", "image/webp", "image/gif"]
+    if (!allowedTypes.includes(file.type)) {
+      alert("Invalid file type. Please upload PNG, JPG, JPEG, WEBP, or GIF.")
+      return
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      alert("Image size must be less than 5MB")
+      return
+    }
+
+    const reader = new FileReader()
+    reader.onload = () => {
+      const result = reader.result as string
+      setAdminImage(result)
+
+      setSavingProfile(true)
+
+      updateAdminProfile({
+        image_url: result
+      }).then(() => {
+        const updatedAdmin = {
+          ...admin,
+          image_url: result
+        }
+        localStorage.setItem(
+          "mini-amazon-admin",
+          JSON.stringify(updatedAdmin)
+        )
+      }).catch((err: Error) => {
+        console.error(
+          "Profile update error:",
+          err
+        )
+        setAdminImage(
+          admin?.image_url || ""
+        )
+      }).finally(() => {
+        setSavingProfile(false)
+      })
+    }
+    reader.readAsDataURL(file)
+  }
+
+  const loadLogo = async () => {
+    try {
+      const data = await getSiteSettings() as { settings: Record<string, string> }
+      if (data.settings?.logo_url) {
+        setLogoUrl(data.settings.logo_url)
+      }
+    } catch (err) {
+      console.error("Load logo error:", err)
+    }
+  }
+
+  const loadAdminNotifications = async (page = 1) => {
+    try {
+      setAdminNotificationsLoading(true)
+      const adminId = admin?.id || 1
+      const data = await fetch(
+        `http://localhost:5001/api/admin/notifications?role=admin&reference_id=${adminId}&page=${page}&limit=10`
+      ).then(res => res.json())
+
+      setAdminNotifications(data.notifications || [])
+      setAdminNotificationsTotalPages(data.pagination?.totalPages || 1)
+      setAdminNotificationsPage(data.pagination?.page || 1)
+    } catch (err) {
+      console.error("Load admin notifications error:", err)
+    } finally {
+      setAdminNotificationsLoading(false)
+    }
+  }
+
+  const handleLogoChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = event.target.files?.[0]
+    if (!file) return
+
+    const allowedTypes = ["image/png", "image/jpeg", "image/jpg", "image/webp", "image/gif"]
+    if (!allowedTypes.includes(file.type)) {
+      alert("Invalid file type. Please upload PNG, JPG, JPEG, WEBP, or GIF.")
+      return
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      alert("Image size must be less than 5MB")
+      return
+    }
+
+    const reader = new FileReader()
+    reader.onload = () => {
+      const result = reader.result as string
+      setLogoUrl(result)
+      setSavingLogo(true)
+      updateSiteSetting("logo_url", result)
+        .then(() => {
+          loadLogo()
+        })
+        .catch((err: Error) => {
+          console.error("Logo update error:", err)
+          setLogoUrl("")
+        })
+        .finally(() => {
+          setSavingLogo(false)
+        })
+    }
+    reader.readAsDataURL(file)
+  }
+
+  useEffect(() => {
+    loadLogo()
+  }, [])
+
+  useEffect(() => {
+    if (activeMenu === "notifications" && admin?.id) {
+      loadAdminNotifications()
+    }
+  }, [activeMenu, admin?.id])
 
 
   const handleLogout = () => {
@@ -176,12 +333,53 @@ function AdminDashboardPage({
           Admin Panel
         </p>
 
+        <div style={styles.profileImageWrapper}>
+
+          <label style={styles.profileImageLabel}>
+            <input
+              type="file"
+              accept="image/png,image/jpeg,image/jpg,image/webp,image/gif"
+              onChange={handleProfileImageChange}
+              style={styles.profileImageInput}
+            />
+
+            {adminImage ? (
+              <img
+                src={adminImage}
+                alt="Profile"
+                style={styles.profileImage}
+              />
+            ) : (
+              <div style={styles.profilePlaceholder}>
+                {(admin?.name || "A").charAt(0).toUpperCase()}
+              </div>
+            )}
+
+            <span style={styles.profileImageButton}>
+              {savingProfile ? "Saving..." : adminImage ? "Change Photo" : "Upload Photo"}
+            </span>
+          </label>
+
+          <p style={styles.uploadHint}>
+            Supported: PNG, JPG, JPEG, WEBP, GIF (Max 5MB)
+          </p>
+
+        </div>
+
+        <div style={styles.sidebarNav}>
+
         <nav>
 
           <MenuButton
             title="Dashboard"
             active={activeMenu === "dashboard"}
             onClick={() => setActiveMenu("dashboard")}
+          />
+
+          <MenuButton
+            title="Notifications"
+            active={activeMenu === "notifications"}
+            onClick={() => setActiveMenu("notifications")}
           />
 
           <MenuButton
@@ -228,6 +426,8 @@ function AdminDashboardPage({
 
         </nav>
 
+        </div>
+
         <button
           type="button"
           onClick={handleLogout}
@@ -249,6 +449,55 @@ function AdminDashboardPage({
             <p style={styles.welcomeText}>
               Welcome back, {admin?.name || "Admin"}
             </p>
+
+            {activeMenu === "dashboard" && (
+              <div style={styles.logoSection}>
+                <h3 style={styles.logoTitle}>
+                  App Logo
+                </h3>
+                <div style={styles.logoUpload}>
+                  {logoUrl ? (
+                    <img
+                      src={logoUrl}
+                      alt="Logo"
+                      style={styles.logoPreview}
+                    />
+                  ) : (
+                    <div style={styles.logoPlaceholder}>
+                      No logo
+                    </div>
+                  )}
+                    <div style={styles.logoActions}>
+                      <label style={styles.uploadLabel}>
+                        <input
+                          type="file"
+                          accept="image/png,image/jpeg,image/jpg,image/webp,image/gif"
+                          onChange={handleLogoChange}
+                          disabled={savingLogo}
+                          style={styles.logoInput}
+                        />
+                        {savingLogo ? "Uploading..." : "Upload Logo"}
+                      </label>
+                      {logoUrl && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setLogoUrl("")
+                            updateSiteSetting("logo_url", "")
+                          }}
+                          style={styles.removeButton}
+                        >
+                          Remove
+                        </button>
+                      )}
+                    </div>
+
+                    <p style={styles.uploadHint}>
+                      Supported: PNG, JPG, JPEG, WEBP, GIF (Max 5MB)
+                    </p>
+                </div>
+              </div>
+            )}
 
             {error && (
               <div style={styles.error}>
@@ -399,6 +648,75 @@ function AdminDashboardPage({
           </div>
         )}
 
+        {activeMenu === "notifications" && (
+          <div>
+            <h1 style={styles.pageTitle}>
+              Notifications
+            </h1>
+
+            {adminNotificationsLoading ? (
+              <div style={styles.loading}>
+                <p>Loading notifications...</p>
+              </div>
+            ) : adminNotifications.length === 0 ? (
+              <div style={styles.notificationsEmpty}>
+                <p>No notifications yet.</p>
+              </div>
+            ) : (
+              <div style={styles.notificationsList}>
+                {adminNotifications.map((notification: AdminNotification) => (
+                  <div
+                    key={notification.id}
+                    style={{
+                      ...styles.notificationCard,
+                      opacity: notification.is_read ? 0.7 : 1
+                    }}
+                  >
+                    <div style={styles.notificationIcon}>
+                      {notification.type === "order" ? "📦" : "🔔"}
+                    </div>
+                    <div style={styles.notificationContent}>
+                      <h3 style={styles.notificationTitle}>
+                        {notification.title}
+                      </h3>
+                      <p style={styles.notificationMessage}>
+                        {notification.message}
+                      </p>
+                      <span style={styles.notificationTime}>
+                        {new Date(notification.created_at).toLocaleString("en-IN")}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {adminNotificationsTotalPages > 1 && (
+              <div style={styles.pagination}>
+                <button
+                  type="button"
+                  onClick={() => loadAdminNotifications(adminNotificationsPage - 1)}
+                  disabled={adminNotificationsPage === 1}
+                  style={styles.paginationButton}
+                >
+                  Previous
+                </button>
+                <span style={styles.paginationInfo}>
+                  Page {adminNotificationsPage} of {adminNotificationsTotalPages}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => loadAdminNotifications(adminNotificationsPage + 1)}
+                  disabled={adminNotificationsPage === adminNotificationsTotalPages}
+                  style={styles.paginationButton}
+                >
+                  Next
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+
         {activeMenu === "categories" && (
           <AdminCategoriesPage />
         )}
@@ -523,18 +841,27 @@ const styles = {
 
   container: {
     minHeight: "100vh",
-    display: "flex",
     backgroundColor: "#f5f5f5"
   },
 
   sidebar: {
+    position: "fixed" as const,
+    left: 0,
+    top: 0,
+    bottom: 0,
     width: "230px",
-    minHeight: "100vh",
     padding: "25px 15px",
     backgroundColor: "#222",
     color: "#fff",
     display: "flex",
-    flexDirection: "column" as const
+    flexDirection: "column" as const,
+    zIndex: 100
+  },
+
+  sidebarNav: {
+    flex: 1,
+    overflowY: "auto" as const,
+    marginBottom: "10px"
   },
 
   logo: {
@@ -545,7 +872,211 @@ const styles = {
   adminLabel: {
     textAlign: "center" as const,
     color: "#aaa",
-    marginBottom: "30px"
+    marginBottom: "20px"
+  },
+
+  profileImageWrapper: {
+    display: "flex",
+    flexDirection: "column" as const,
+    alignItems: "center",
+    marginBottom: "20px"
+  },
+
+  profileImage: {
+    width: "80px",
+    height: "80px",
+    borderRadius: "50%",
+    objectFit: "cover" as const,
+    marginBottom: "8px",
+    border: "2px solid #555"
+  },
+
+  profilePlaceholder: {
+    width: "80px",
+    height: "80px",
+    borderRadius: "50%",
+    backgroundColor: "#444",
+    color: "#fff",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    fontSize: "32px",
+    fontWeight: 700,
+    marginBottom: "8px"
+  },
+
+  profileImageLabel: {
+    display: "flex",
+    flexDirection: "column" as const,
+    alignItems: "center",
+    gap: "10px",
+    cursor: "pointer"
+  },
+
+  profileImageButton: {
+    padding: "6px 14px",
+    border: "1px solid #555",
+    borderRadius: "4px",
+    backgroundColor: "transparent",
+    color: "#ccc",
+    fontSize: "12px",
+    cursor: "pointer"
+  },
+
+  profileImageInput: {
+    display: "none"
+  },
+
+  uploadHint: {
+    fontSize: "12px",
+    color: "#aaa",
+    marginTop: "4px",
+    textAlign: "center" as const
+  },
+
+  logoSection: {
+    backgroundColor: "#fff",
+    padding: "24px",
+    borderRadius: "10px",
+    boxShadow: "0 2px 10px rgba(0,0,0,0.08)",
+    marginBottom: "24px"
+  },
+
+  logoTitle: {
+    margin: "0 0 16px",
+    fontSize: "18px"
+  },
+
+  logoUpload: {
+    display: "flex",
+    alignItems: "center",
+    gap: "20px"
+  },
+
+  logoPreview: {
+    width: "120px",
+    height: "60px",
+    objectFit: "contain" as const,
+    borderRadius: "6px",
+    border: "1px solid #eee"
+  },
+
+  logoPlaceholder: {
+    width: "120px",
+    height: "60px",
+    borderRadius: "6px",
+    border: "1px dashed #ccc",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    color: "#999",
+    fontSize: "12px"
+  },
+
+  logoActions: {
+    display: "flex",
+    flexDirection: "column" as const,
+    gap: "8px"
+  },
+
+  uploadLabel: {
+    color: "#666",
+    fontSize: "14px",
+    cursor: "pointer",
+    textDecoration: "underline"
+  },
+
+  logoInput: {
+    display: "none"
+  },
+
+  removeButton: {
+    padding: "6px 12px",
+    border: "1px solid #ccc",
+    borderRadius: "4px",
+    backgroundColor: "#fff",
+    color: "#c00",
+    cursor: "pointer",
+    fontSize: "13px"
+  },
+
+  notificationsList: {
+    display: "grid",
+    gap: "16px"
+  },
+
+  notificationCard: {
+    display: "flex",
+    gap: "16px",
+    padding: "20px",
+    backgroundColor: "#fff",
+    borderRadius: "10px",
+    boxShadow: "0 2px 10px rgba(0,0,0,0.08)"
+  },
+
+  notificationIcon: {
+    fontSize: "24px",
+    lineHeight: 1
+  },
+
+  notificationContent: {
+    flex: 1,
+    minWidth: 0
+  },
+
+  notificationTitle: {
+    margin: "0 0 8px",
+    fontSize: "16px",
+    fontWeight: 600
+  },
+
+  notificationMessage: {
+    margin: "0 0 8px",
+    color: "#444",
+    fontSize: "14px",
+    lineHeight: "1.5"
+  },
+
+  notificationTime: {
+    fontSize: "12px",
+    color: "#888"
+  },
+
+  loading: {
+    padding: "40px",
+    textAlign: "center" as const,
+    color: "#666"
+  },
+
+  notificationsEmpty: {
+    padding: "40px",
+    textAlign: "center" as const,
+    color: "#666",
+    backgroundColor: "#fff",
+    borderRadius: "10px",
+    boxShadow: "0 2px 10px rgba(0,0,0,0.08)"
+  },
+
+  pagination: {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    gap: "16px",
+    padding: "20px"
+  },
+
+  paginationButton: {
+    padding: "8px 16px",
+    border: "1px solid #ddd",
+    borderRadius: "6px",
+    backgroundColor: "#fff",
+    cursor: "pointer",
+    fontSize: "14px"
+  },
+
+  paginationInfo: {
+    fontSize: "14px",
+    color: "#666"
   },
 
   menuButton: {
@@ -575,9 +1106,10 @@ const styles = {
   },
 
   main: {
-    flex: 1,
+    marginLeft: "230px",
     padding: "30px",
-    overflow: "auto" as const
+    overflow: "auto" as const,
+    minHeight: "100vh"
   },
 
   pageTitle: {

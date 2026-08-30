@@ -29,6 +29,14 @@ function HomePage({
   const [priceMax, setPriceMax] = useState<string>("")
   const [sortBy, setSortBy] = useState<SortOption>("default")
 
+  const [currentPage, setCurrentPage] = useState(1)
+  const [productsPerPage] = useState(8)
+
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [searchText, selectedCategory, priceMin, priceMax, sortBy])
+
+
   useEffect(() => {
     async function fetchData() {
       try {
@@ -41,7 +49,7 @@ function HomePage({
         const [productsRes, categoriesRes] = await Promise.all([productsPromise, categoriesPromise])
 
         if (productsRes.products && Array.isArray(productsRes.products)) {
-          const apiProducts = productsRes.products.map((p: { id: number; name: string; description?: string; price: number; stock: number; is_active: boolean; created_at: string; category_id: number; category_name?: string }) => ({
+          const apiProducts = productsRes.products.map((p: { id: number; name: string; description?: string; price: number; stock: number; is_active: boolean; created_at: string; category_id: number; category_name?: string; image_url?: string | null }) => ({
             id: p.id,
             name: p.name,
             description: p.description || "",
@@ -51,7 +59,7 @@ function HomePage({
             created_at: p.created_at || new Date().toISOString(),
             category_id: Number(p.category_id) || 0,
             category_name: p.category_name || "",
-            image: staticProducts.find(sp => sp.id === p.id)?.image || `https://via.placeholder.com/400x400?text=${encodeURIComponent(p.name)}`
+            image: p.image_url || staticProducts.find(sp => sp.id === p.id)?.image || `https://via.placeholder.com/400x400?text=${encodeURIComponent(p.name)}`
           }))
           setProducts(apiProducts)
         } else {
@@ -125,6 +133,11 @@ function HomePage({
 
     return result
   }, [products, searchText, selectedCategory, priceMin, priceMax, sortBy])
+
+  const paginatedProducts = useMemo(() => {
+    const start = (currentPage - 1) * productsPerPage
+    return filteredAndSortedProducts.slice(start, start + productsPerPage)
+  }, [filteredAndSortedProducts, currentPage, productsPerPage])
 
   const featuredCategories = categories.slice(0, 6)
 
@@ -205,7 +218,7 @@ function HomePage({
             </div>
           ) : (
             <div className="products-grid">
-              {filteredAndSortedProducts.map((product) => (
+              {paginatedProducts.map((product) => (
                 <ProductCard
                   key={product.id}
                   product={product}
@@ -215,6 +228,36 @@ function HomePage({
               ))}
             </div>
           )}
+
+          {filteredAndSortedProducts.length > productsPerPage && (() => {
+            const totalPages = Math.ceil(filteredAndSortedProducts.length / productsPerPage)
+
+            return (
+              <div className="pagination">
+                <button
+                  type="button"
+                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                  className="pagination-button"
+                >
+                  Previous
+                </button>
+
+                <span className="pagination-info">
+                  Page {currentPage} of {totalPages}
+                </span>
+
+                <button
+                  type="button"
+                  onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                  disabled={currentPage === totalPages}
+                  className="pagination-button"
+                >
+                  Next
+                </button>
+              </div>
+            )
+          })()}
         </div>
       </section>
 

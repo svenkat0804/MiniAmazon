@@ -28,6 +28,7 @@ type Product = {
   price: number
   stock: number
   is_active: boolean
+  image_url: string | null
   created_at: string
 }
 
@@ -85,6 +86,9 @@ function AdminProductsPage() {
   const [newIsActive, setNewIsActive] =
     useState(true)
 
+  const [newImageUrl, setNewImageUrl] =
+    useState("")
+
   const [adding, setAdding] =
     useState(false)
 
@@ -114,6 +118,9 @@ function AdminProductsPage() {
   const [editIsActive, setEditIsActive] =
     useState(true)
 
+  const [editImageUrl, setEditImageUrl] =
+    useState("")
+
   const [updating, setUpdating] =
     useState(false)
 
@@ -124,6 +131,15 @@ function AdminProductsPage() {
 
   const [deletingId, setDeletingId] =
     useState<number | null>(null)
+
+  const [searchQuery, setSearchQuery] =
+    useState("")
+
+  const [currentPage, setCurrentPage] =
+    useState(1)
+
+  const [itemsPerPage] =
+    useState(10)
 
 
   // =====================================================
@@ -221,6 +237,7 @@ function AdminProductsPage() {
     setNewPrice("")
     setNewStock("")
     setNewIsActive(true)
+    setNewImageUrl("")
 
   }
 
@@ -312,7 +329,8 @@ function AdminProductsPage() {
           description: description || null,
           price,
           stock,
-          is_active: newIsActive
+          is_active: newIsActive,
+          image_url: newImageUrl || null
         }
       )
 
@@ -376,6 +394,10 @@ function AdminProductsPage() {
 
     setEditIsActive(
       product.is_active
+    )
+
+    setEditImageUrl(
+      product.image_url || ""
     )
 
     setShowAddForm(false)
@@ -478,7 +500,8 @@ function AdminProductsPage() {
           description: description || null,
           price,
           stock,
-          is_active: editIsActive
+          is_active: editIsActive,
+          image_url: editImageUrl || null
         }
       )
 
@@ -616,6 +639,27 @@ function AdminProductsPage() {
   // =====================================================
   // UI
   // =====================================================
+
+  const filteredProducts = (() => {
+    const query = searchQuery.trim().toLowerCase()
+    if (!query) return products
+    return products.filter(
+      (product) =>
+        String(product.id).includes(query) ||
+        product.name.toLowerCase().includes(query)
+    )
+  })()
+
+  const paginatedProducts = (() => {
+    const start = (currentPage - 1) * itemsPerPage
+    return filteredProducts.slice(start, start + itemsPerPage)
+  })()
+
+  const totalPages = Math.ceil(filteredProducts.length / itemsPerPage)
+
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [searchQuery])
 
   return (
 
@@ -874,6 +918,53 @@ function AdminProductsPage() {
 
               </div>
 
+
+              {/* Product Image */}
+
+              <div style={styles.fieldFull}>
+
+                <label style={styles.label}>
+                  Product Image
+                </label>
+
+                <input
+                  type="file"
+                  accept="image/png,image/jpeg,image/jpg,image/webp,image/gif"
+                  disabled={adding}
+                  onChange={(event) => {
+                    const file = event.target.files?.[0]
+                    if (!file) return
+                    if (file.size > 5 * 1024 * 1024) {
+                      setError("Image size must be less than 5MB")
+                      return
+                    }
+                    const reader = new FileReader()
+                    reader.onload = () => {
+                      setNewImageUrl(
+                        reader.result as string
+                      )
+                    }
+                    reader.readAsDataURL(file)
+                  }}
+                  style={styles.input}
+                />
+
+                <p style={styles.uploadHint}>
+                  Supported: PNG, JPG, JPEG, WEBP, GIF (Max 5MB)
+                </p>
+
+                {newImageUrl && (
+                  <img
+                    src={newImageUrl}
+                    alt="Preview"
+                    style={
+                      styles.imagePreview
+                    }
+                  />
+                )}
+
+              </div>
+
             </div>
 
 
@@ -1118,6 +1209,53 @@ function AdminProductsPage() {
 
               </div>
 
+
+              {/* Product Image */}
+
+              <div style={styles.fieldFull}>
+
+                <label style={styles.label}>
+                  Product Image
+                </label>
+
+                <input
+                  type="file"
+                  accept="image/png,image/jpeg,image/jpg,image/webp,image/gif"
+                  disabled={updating}
+                  onChange={(event) => {
+                    const file = event.target.files?.[0]
+                    if (!file) return
+                    if (file.size > 5 * 1024 * 1024) {
+                      setError("Image size must be less than 5MB")
+                      return
+                    }
+                    const reader = new FileReader()
+                    reader.onload = () => {
+                      setEditImageUrl(
+                        reader.result as string
+                      )
+                    }
+                    reader.readAsDataURL(file)
+                  }}
+                  style={styles.input}
+                />
+
+                <p style={styles.uploadHint}>
+                  Supported: PNG, JPG, JPEG, WEBP, GIF (Max 5MB)
+                </p>
+
+                {editImageUrl && (
+                  <img
+                    src={editImageUrl}
+                    alt="Preview"
+                    style={
+                      styles.imagePreview
+                    }
+                  />
+                )}
+
+              </div>
+
             </div>
 
 
@@ -1179,11 +1317,46 @@ function AdminProductsPage() {
           </div>
 
 
+          <input
+            type="text"
+            placeholder="Search by ID or name..."
+            value={searchQuery}
+            onChange={(event) =>
+              setSearchQuery(event.target.value)
+            }
+            style={styles.searchInput}
+          />
+
+
           <span style={styles.count}>
-            {products.length}
+            {filteredProducts.length}
           </span>
 
         </div>
+
+        {totalPages > 1 && (
+          <div style={styles.pagination}>
+            <button
+              type="button"
+              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+              style={styles.paginationButton}
+            >
+              Previous
+            </button>
+            <span style={styles.paginationInfo}>
+              Page {currentPage} of {totalPages}
+            </span>
+            <button
+              type="button"
+              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages}
+              style={styles.paginationButton}
+            >
+              Next
+            </button>
+          </div>
+        )}
 
 
         {/* LOADING */}
@@ -1198,7 +1371,7 @@ function AdminProductsPage() {
 
           </div>
 
-        ) : products.length === 0 ? (
+        ) : paginatedProducts.length === 0 ? (
 
           /* EMPTY */
 
@@ -1273,7 +1446,7 @@ function AdminProductsPage() {
 
               <tbody>
 
-                {products.map(
+                {paginatedProducts.map(
                   (product) => (
 
                     <tr
@@ -1592,6 +1765,21 @@ const styles = {
   },
 
 
+  imagePreview: {
+    marginTop: "10px",
+    width: "120px",
+    height: "120px",
+    objectFit: "cover" as const,
+    borderRadius: "8px",
+    border: "1px solid #ddd"
+  },
+
+  uploadHint: {
+    fontSize: "12px",
+    color: "#888",
+    marginTop: "4px"
+  },
+
   formActions: {
     display: "flex",
     justifyContent: "flex-end",
@@ -1635,6 +1823,15 @@ const styles = {
   },
 
 
+  searchInput: {
+    padding: "8px 12px",
+    border: "1px solid #ddd",
+    borderRadius: "6px",
+    fontSize: "14px",
+    minWidth: "220px"
+  },
+
+
   listTitle: {
     margin: 0,
     fontSize: "20px"
@@ -1655,6 +1852,33 @@ const styles = {
     fontWeight: 600
   },
 
+
+  pagination: {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    gap: "16px",
+    padding: "20px"
+  },
+
+  paginationButton: {
+    padding: "8px 16px",
+    border: "1px solid #ddd",
+    borderRadius: "6px",
+    backgroundColor: "#fff",
+    cursor: "pointer",
+    fontSize: "14px"
+  },
+
+  paginationButtonDisabled: {
+    opacity: 0.5,
+    cursor: "not-allowed"
+  },
+
+  paginationInfo: {
+    fontSize: "14px",
+    color: "#666"
+  },
 
   tableWrapper: {
     overflowX: "auto" as const

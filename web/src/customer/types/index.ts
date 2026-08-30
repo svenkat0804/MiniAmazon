@@ -9,6 +9,7 @@ export type Product = {
   category_id: number
   category_name: string
   image?: string
+  image_url?: string | null
 }
 
 export type CartItem = Product & {

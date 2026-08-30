@@ -38,6 +38,9 @@ function AdminCustomersPage() {
   const [error, setError] = useState("")
   const [searchQuery, setSearchQuery] = useState("")
 
+  const [currentPage, setCurrentPage] = useState(1)
+  const [itemsPerPage] = useState(10)
+
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null)
   const [customerOrders, setCustomerOrders] = useState<CustomerOrder[]>([])
   const [showDetail, setShowDetail] = useState(false)
@@ -192,6 +195,16 @@ function AdminCustomersPage() {
     )
   })
 
+  const paginatedCustomers = (() => {
+    const start = (currentPage - 1) * itemsPerPage
+    return filteredCustomers.slice(start, start + itemsPerPage)
+  })()
+
+  const totalPages = Math.ceil(filteredCustomers.length / itemsPerPage)
+
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [searchQuery])
 
   const formatCurrency = (amount: number) => {
     return `₹${Number(amount).toLocaleString("en-IN")}`
@@ -482,13 +495,38 @@ function AdminCustomersPage() {
 
         </div>
 
+        {totalPages > 1 && (
+          <div style={styles.pagination}>
+            <button
+              type="button"
+              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+              style={styles.paginationButton}
+            >
+              Previous
+            </button>
+            <span style={styles.paginationInfo}>
+              Page {currentPage} of {totalPages}
+            </span>
+            <button
+              type="button"
+              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages}
+              style={styles.paginationButton}
+            >
+              Next
+            </button>
+          </div>
+        )}
+
+
         {loading ? (
           <div style={styles.empty}>
             <p>
               Loading customers...
             </p>
           </div>
-        ) : filteredCustomers.length === 0 ? (
+        ) : paginatedCustomers.length === 0 ? (
           <div style={styles.empty}>
             <p>
               {searchQuery ? "No customers match your search." : "No customers found."}
@@ -533,7 +571,7 @@ function AdminCustomersPage() {
 
               <tbody>
 
-                {filteredCustomers.map((customer) => (
+                {paginatedCustomers.map((customer) => (
                   <tr key={customer.id} style={styles.tr}>
 
                     <td style={styles.td}>
@@ -879,6 +917,34 @@ const styles = {
     borderRadius: "8px",
     fontSize: "14px",
     boxSizing: "border-box" as const
+  },
+
+
+  pagination: {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    gap: "16px",
+    padding: "20px"
+  },
+
+  paginationButton: {
+    padding: "8px 16px",
+    border: "1px solid #ddd",
+    borderRadius: "6px",
+    backgroundColor: "#fff",
+    cursor: "pointer",
+    fontSize: "14px"
+  },
+
+  paginationButtonDisabled: {
+    opacity: 0.5,
+    cursor: "not-allowed"
+  },
+
+  paginationInfo: {
+    fontSize: "14px",
+    color: "#666"
   },
 
   formCard: {

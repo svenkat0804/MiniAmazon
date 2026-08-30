@@ -1,7 +1,8 @@
 import { Router } from "express"
 import {
   loginAdmin,
-  getAdminProfile
+  getAdminProfile,
+  updateAdminProfile
 } from "../controllers/admin.controller.js"
 
 import { adminAuth } from "../middleware/adminAuth.js"
@@ -14,6 +15,12 @@ router.get(
   "/profile",
   adminAuth,
   getAdminProfile
+)
+
+router.put(
+  "/profile",
+  adminAuth,
+  updateAdminProfile
 )
 
 export default router
